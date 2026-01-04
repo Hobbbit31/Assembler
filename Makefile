@@ -5,7 +5,8 @@ ASM_SRC = assembler_c/assembler.c
 VM_SRC  = VM/vm.c main.c
 
 ASM_BIN = assembler
-VM_BIN  = vm
+VM_BIN  = bvm
+TEST_SCRIPT = test/run_vm_tests.sh
 
 all: $(ASM_BIN) $(VM_BIN)
 
@@ -18,4 +19,7 @@ $(VM_BIN): $(VM_SRC)
 clean:
 	rm -f $(ASM_BIN) $(VM_BIN)
 
-.PHONY: all clean
+test: all
+	$(TEST_SCRIPT)
+
+.PHONY: all clean test
