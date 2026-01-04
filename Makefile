@@ -2,7 +2,7 @@ CC      = gcc
 CFLAGS  = -std=c11 -Wall -Wextra -g
 
 ASM_SRC = assembler_c/assembler.c
-VM_SRC  = VM/vm.c main.c
+VM_SRC  = VM/vm.c VM/stack.c VM/loader.c VM/exec.c main.c
 
 ASM_BIN = assembler
 VM_BIN  = bvm
