@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "VM/vm.h"
+#include "VM/loader.h"
+#include "VM/exec.h"
 
 
 int main(int argc, char **argv) {
@@ -16,10 +18,8 @@ int main(int argc, char **argv) {
     /* load bytecode */
     int size = 0;
     unsigned char *code = load_bytecode(file, &size);
-    if (!code) {
-        fprintf(stderr, "error: cannot open %s\n", file);
+    if (!code)
         return 1;
-    }
 
     /* initialize VM program */
     Program prog;
