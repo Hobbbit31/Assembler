@@ -1,7 +1,9 @@
 #include "exec.h"
+#include "stack.h"
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 
 static int needs_operand(unsigned char op) {
     /* instructions that carry a 4-byte operand */
@@ -14,6 +16,15 @@ static int needs_operand(unsigned char op) {
         op == 0x31 ||  /* LOAD */
         op == 0x40     /* CALL */
     );
+}
+
+static int read_int32(const unsigned char *code, int offset) {
+    /* little-endian 4-byte integer */
+    uint32_t b0 = (uint32_t)code[offset];
+    uint32_t b1 = (uint32_t)code[offset + 1] << 8;
+    uint32_t b2 = (uint32_t)code[offset + 2] << 16;
+    uint32_t b3 = (uint32_t)code[offset + 3] << 24;
+    return (int)(int32_t)(b0 | b1 | b2 | b3);
 }
 
 void vm_run(Program *p) {
@@ -30,9 +41,20 @@ void vm_run(Program *p) {
             p->pc = pc + 1;
 
         switch (op) {
-            case 0x01: /* PUSH */ break;
-            case 0x02: /* POP */ break;
-            case 0x03: /* DUP */ break;
+            case 0x01: { /* PUSH */
+                int value = read_int32(p->code, pc + 1);
+                vm_push(p, value);
+                break;
+            }
+            case 0x02: /* POP */
+                (void)vm_pop(p);
+                break;
+            case 0x03: { /* DUP */
+                int value = vm_pop(p);
+                vm_push(p, value);
+                vm_push(p, value);
+                break;
+            }
             case 0x10: /* ADD */ break;
             case 0x11: /* SUB */ break;
             case 0x12: /* MUL */ break;
