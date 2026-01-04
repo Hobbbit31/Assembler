@@ -63,6 +63,32 @@ else
     pass "invalid opcode rejected"
 fi
 
+# Test 4: stack program runs without errors.
+stack_ok_bin="$tmp_dir/stack_ok.bin"
+if ! "$ASM_BIN" "$ROOT_DIR/test/stack_ok.asm" "$stack_ok_bin" >/dev/null 2>&1; then
+    fail_case "assemble stack_ok program"
+else
+    if ! "$VM_BIN" "$stack_ok_bin" >/dev/null 2>"$tmp_dir/stack_ok.err"; then
+        fail_case "stack_ok should run"
+    else
+        pass "stack_ok program"
+    fi
+fi
+
+# Test 5: stack underflow is trapped.
+stack_underflow_bin="$tmp_dir/stack_underflow.bin"
+if ! "$ASM_BIN" "$ROOT_DIR/test/stack_underflow.asm" "$stack_underflow_bin" >/dev/null 2>&1; then
+    fail_case "assemble stack_underflow program"
+else
+    if "$VM_BIN" "$stack_underflow_bin" >/dev/null 2>"$tmp_dir/stack_underflow.err"; then
+        fail_case "stack_underflow should fail"
+    elif ! grep -q "stack underflow" "$tmp_dir/stack_underflow.err"; then
+        fail_case "stack_underflow error message"
+    else
+        pass "stack_underflow trapped"
+    fi
+fi
+
 if [[ $fail -ne 0 ]]; then
     echo "VM tests failed."
     exit 1

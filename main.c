@@ -29,7 +29,7 @@ int main(int argc, char **argv) {
     vm_dump_bytecode(&prog);
 
     
-    /* vm_run(&prog); */
+    vm_run(&prog);
 
     vm_free(&prog);
     return 0;
