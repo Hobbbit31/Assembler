@@ -79,20 +79,11 @@ void write_int32(FILE *out, int val) {
     fputc((val >> 24) & 0xFF, out);
 }
 
-/* write bytecode header: magic + code size */
-void write_header(FILE *out, int code_size) {
-    fputc('B', out);
-    fputc('V', out);
-    fputc('M', out);
-    fputc('1', out);
-    write_int32(out, code_size);
-}
-
 
 
 //   Detect labels and calculate byte offsets
 
-int pass1_build_label_table(FILE *in) {
+void pass1_build_label_table(FILE *in) {
     char line[MAX_LINE];
     int pc = 0;
 
@@ -119,7 +110,6 @@ int pass1_build_label_table(FILE *in) {
         else
             pc += 1;
     }
-    return pc;
 }
 
 //   Replace labels with addresses and emit bytecode 
@@ -208,7 +198,7 @@ int assemble(char *infile, char *outfile) {
         return 1;
     }
 
-    int code_size = pass1_build_label_table(in);
+    pass1_build_label_table(in);
     rewind(in);
     FILE *out = fopen(outfile, "wb");
     if (!out) {
@@ -216,7 +206,6 @@ int assemble(char *infile, char *outfile) {
         fclose(in);
         return 1;
     }
-    write_header(out, code_size);
     pass2_emit_bytecode(in, out);
 
     fclose(in);
