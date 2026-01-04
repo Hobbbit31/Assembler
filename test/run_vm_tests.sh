@@ -54,7 +54,7 @@ else
 fi
 
 # Test 3: invalid opcode should be rejected.
-printf 'BVM1\x01\x00\x00\x00\x99' > "$tmp_dir/invalid.bin"
+printf '\x99' > "$tmp_dir/invalid.bin"
 if "$VM_BIN" "$tmp_dir/invalid.bin" >/dev/null 2>"$tmp_dir/invalid.err"; then
     fail_case "invalid opcode should fail"
 elif ! grep -q "invalid opcode" "$tmp_dir/invalid.err"; then

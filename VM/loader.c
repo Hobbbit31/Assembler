@@ -2,10 +2,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-
-#define BVM_MAGIC "BVM1"   /* 4-byte magic tag */
-#define BVM_HEADER_SIZE 8  /* magic(4) + code_size(4) */
 
 static int valid_opcode(unsigned char op) {
     /* whitelist of supported opcodes */
@@ -52,49 +48,18 @@ unsigned char *load_bytecode(const char *file, int *size) {
         return NULL;
     }
 
-    /* read and validate header: "BVM1" + int32 code size */
-    unsigned char header[BVM_HEADER_SIZE];
-    if (fread(header, 1, BVM_HEADER_SIZE, f) != BVM_HEADER_SIZE) {
-        fprintf(stderr, "error: invalid bytecode header\n");
-        fclose(f);
-        return NULL;
-    }
-
-    if (memcmp(header, BVM_MAGIC, 4) != 0) {
-        fprintf(stderr, "error: bad magic number\n");
-        fclose(f);
-        return NULL;
-    }
-
-    /* decode little-endian size */
-    int code_size = 0;
-    code_size |= (int)header[4];
-    code_size |= (int)header[5] << 8;
-    code_size |= (int)header[6] << 16;
-    code_size |= (int)header[7] << 24;
-    if (code_size < 0) {
-        fprintf(stderr, "error: invalid code size\n");
-        fclose(f);
-        return NULL;
-    }
-
-    /* confirm file size matches header */
+    /* read full file into memory */
     fseek(f, 0, SEEK_END);
     long file_size = ftell(f);
-    if (file_size != (long)(BVM_HEADER_SIZE + code_size)) {
-        fprintf(stderr, "error: bytecode size mismatch\n");
-        fclose(f);
-        return NULL;
-    }
-    fseek(f, BVM_HEADER_SIZE, SEEK_SET);
+    fseek(f, 0, SEEK_SET);
 
-    unsigned char *buf = malloc(code_size);
+    unsigned char *buf = malloc(file_size);
     if (!buf) {
         fprintf(stderr, "error: out of memory\n");
         fclose(f);
         return NULL;
     }
-    if (fread(buf, 1, code_size, f) != (size_t)code_size) {
+    if (fread(buf, 1, file_size, f) != (size_t)file_size) {
         fprintf(stderr, "error: truncated bytecode\n");
         free(buf);
         fclose(f);
@@ -102,7 +67,7 @@ unsigned char *load_bytecode(const char *file, int *size) {
     }
     fclose(f);
 
-    *size = code_size;
+    *size = (int)file_size;
     return buf;
 }
 
