@@ -108,8 +108,25 @@ void vm_run(Program *p) {
                     p->pc = addr;
                 break;
             }
-            case 0x30: /* STORE */ break;
-            case 0x31: /* LOAD */ break;
+            case 0x30: { /* STORE */
+                int idx = read_int32(p->code, pc + 1);
+                int value = vm_pop(p);
+                if (idx < 0 || idx >= MEM_SIZE) {
+                    fprintf(stderr, "error: invalid memory index %d\n", idx);
+                    exit(1);
+                }
+                p->memory[idx] = value;
+                break;
+            }
+            case 0x31: { /* LOAD */
+                int idx = read_int32(p->code, pc + 1);
+                if (idx < 0 || idx >= MEM_SIZE) {
+                    fprintf(stderr, "error: invalid memory index %d\n", idx);
+                    exit(1);
+                }
+                vm_push(p, p->memory[idx]);
+                break;
+            }
             case 0x40: /* CALL */ break;
             case 0x41: /* RET */ break;
             case 0xFF: /* HALT */ return;
