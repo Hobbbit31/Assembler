@@ -151,6 +151,32 @@ else
     fi
 fi
 
+# Test 11: STORE/LOAD works with valid index.
+mem_ok_bin="$tmp_dir/mem_ok.bin"
+if ! "$ASM_BIN" "$ROOT_DIR/test/mem_ok.asm" "$mem_ok_bin" >/dev/null 2>&1; then
+    fail_case "assemble mem_ok program"
+else
+    if ! "$VM_BIN" "$mem_ok_bin" >/dev/null 2>"$tmp_dir/mem_ok.err"; then
+        fail_case "mem_ok should run"
+    else
+        pass "mem_ok program"
+    fi
+fi
+
+# Test 12: invalid memory index is trapped.
+mem_bad_bin="$tmp_dir/mem_bad.bin"
+if ! "$ASM_BIN" "$ROOT_DIR/test/mem_bad.asm" "$mem_bad_bin" >/dev/null 2>&1; then
+    fail_case "assemble mem_bad program"
+else
+    if "$VM_BIN" "$mem_bad_bin" >/dev/null 2>"$tmp_dir/mem_bad.err"; then
+        fail_case "mem_bad should fail"
+    elif ! grep -q "invalid memory index" "$tmp_dir/mem_bad.err"; then
+        fail_case "mem_bad error message"
+    else
+        pass "mem_bad trapped"
+    fi
+fi
+
 if [[ $fail -ne 0 ]]; then
     echo "VM tests failed."
     exit 1
