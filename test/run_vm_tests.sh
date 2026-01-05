@@ -89,6 +89,32 @@ else
     fi
 fi
 
+# Test 6: arithmetic program runs without errors.
+arith_bin="$tmp_dir/arith.bin"
+if ! "$ASM_BIN" "$ROOT_DIR/test/arith.asm" "$arith_bin" >/dev/null 2>&1; then
+    fail_case "assemble arith program"
+else
+    if ! "$VM_BIN" "$arith_bin" >/dev/null 2>"$tmp_dir/arith.err"; then
+        fail_case "arith should run"
+    else
+        pass "arith program"
+    fi
+fi
+
+# Test 7: division by zero is trapped.
+div_zero_bin="$tmp_dir/div_zero.bin"
+if ! "$ASM_BIN" "$ROOT_DIR/test/div_zero.asm" "$div_zero_bin" >/dev/null 2>&1; then
+    fail_case "assemble div_zero program"
+else
+    if "$VM_BIN" "$div_zero_bin" >/dev/null 2>"$tmp_dir/div_zero.err"; then
+        fail_case "div_zero should fail"
+    elif ! grep -q "division by zero" "$tmp_dir/div_zero.err"; then
+        fail_case "div_zero error message"
+    else
+        pass "div_zero trapped"
+    fi
+fi
+
 if [[ $fail -ne 0 ]]; then
     echo "VM tests failed."
     exit 1
