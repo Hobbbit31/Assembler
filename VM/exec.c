@@ -55,11 +55,40 @@ void vm_run(Program *p) {
                 vm_push(p, value);
                 break;
             }
-            case 0x10: /* ADD */ break;
-            case 0x11: /* SUB */ break;
-            case 0x12: /* MUL */ break;
-            case 0x13: /* DIV */ break;
-            case 0x14: /* CMP */ break;
+            case 0x10: { /* ADD */
+                int b = vm_pop(p);
+                int a = vm_pop(p);
+                vm_push(p, a + b);
+                break;
+            }
+            case 0x11: { /* SUB */
+                int b = vm_pop(p);
+                int a = vm_pop(p);
+                vm_push(p, a - b);
+                break;
+            }
+            case 0x12: { /* MUL */
+                int b = vm_pop(p);
+                int a = vm_pop(p);
+                vm_push(p, a * b);
+                break;
+            }
+            case 0x13: { /* DIV */
+                int b = vm_pop(p);
+                int a = vm_pop(p);
+                if (b == 0) {
+                    fprintf(stderr, "error: division by zero\n");
+                    exit(1);
+                }
+                vm_push(p, a / b);
+                break;
+            }
+            case 0x14: { /* CMP */
+                int b = vm_pop(p);
+                int a = vm_pop(p);
+                vm_push(p, (a < b) ? 1 : 0);
+                break;
+            }
             case 0x20: /* JMP */ break;
             case 0x21: /* JZ */ break;
             case 0x22: /* JNZ */ break;
