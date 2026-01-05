@@ -89,9 +89,25 @@ void vm_run(Program *p) {
                 vm_push(p, (a < b) ? 1 : 0);
                 break;
             }
-            case 0x20: /* JMP */ break;
-            case 0x21: /* JZ */ break;
-            case 0x22: /* JNZ */ break;
+            case 0x20: { /* JMP */
+                int addr = read_int32(p->code, pc + 1);
+                p->pc = addr;
+                break;
+            }
+            case 0x21: { /* JZ */
+                int addr = read_int32(p->code, pc + 1);
+                int value = vm_pop(p);
+                if (value == 0)
+                    p->pc = addr;
+                break;
+            }
+            case 0x22: { /* JNZ */
+                int addr = read_int32(p->code, pc + 1);
+                int value = vm_pop(p);
+                if (value != 0)
+                    p->pc = addr;
+                break;
+            }
             case 0x30: /* STORE */ break;
             case 0x31: /* LOAD */ break;
             case 0x40: /* CALL */ break;

@@ -115,6 +115,42 @@ else
     fi
 fi
 
+# Test 8: JMP skips over bytes correctly.
+jmp_bin="$tmp_dir/jmp.bin"
+if ! "$ASM_BIN" "$ROOT_DIR/test/jmp.asm" "$jmp_bin" >/dev/null 2>&1; then
+    fail_case "assemble jmp program"
+else
+    if ! "$VM_BIN" "$jmp_bin" >/dev/null 2>"$tmp_dir/jmp.err"; then
+        fail_case "jmp should run"
+    else
+        pass "jmp program"
+    fi
+fi
+
+# Test 9: JZ takes jump on zero.
+jz_bin="$tmp_dir/jz.bin"
+if ! "$ASM_BIN" "$ROOT_DIR/test/jz.asm" "$jz_bin" >/dev/null 2>&1; then
+    fail_case "assemble jz program"
+else
+    if ! "$VM_BIN" "$jz_bin" >/dev/null 2>"$tmp_dir/jz.err"; then
+        fail_case "jz should run"
+    else
+        pass "jz program"
+    fi
+fi
+
+# Test 10: JNZ takes jump on non-zero.
+jnz_bin="$tmp_dir/jnz.bin"
+if ! "$ASM_BIN" "$ROOT_DIR/test/jnz.asm" "$jnz_bin" >/dev/null 2>&1; then
+    fail_case "assemble jnz program"
+else
+    if ! "$VM_BIN" "$jnz_bin" >/dev/null 2>"$tmp_dir/jnz.err"; then
+        fail_case "jnz should run"
+    else
+        pass "jnz program"
+    fi
+fi
+
 if [[ $fail -ne 0 ]]; then
     echo "VM tests failed."
     exit 1
