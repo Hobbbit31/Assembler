@@ -127,8 +127,16 @@ void vm_run(Program *p) {
                 vm_push(p, p->memory[idx]);
                 break;
             }
-            case 0x40: /* CALL */ break;
-            case 0x41: /* RET */ break;
+            case 0x40: { /* CALL */
+                int addr = read_int32(p->code, pc + 1);
+                vm_push_ret(p, p->pc);
+                p->pc = addr;
+                break;
+            }
+            case 0x41: { /* RET */
+                p->pc = vm_pop_ret(p);
+                break;
+            }
             case 0xFF: /* HALT */ return;
             default:
                 fprintf(stderr, "error: invalid opcode 0x%x at pc=%d\n", op, pc);

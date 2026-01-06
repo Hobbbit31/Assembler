@@ -177,6 +177,18 @@ else
     fi
 fi
 
+# Test 13: CALL/RET runs without errors.
+call_bin="$tmp_dir/call.bin"
+if ! "$ASM_BIN" "$ROOT_DIR/test/call.asm" "$call_bin" >/dev/null 2>&1; then
+    fail_case "assemble call program"
+else
+    if ! "$VM_BIN" "$call_bin" >/dev/null 2>"$tmp_dir/call.err"; then
+        fail_case "call should run"
+    else
+        pass "call program"
+    fi
+fi
+
 if [[ $fail -ne 0 ]]; then
     echo "VM tests failed."
     exit 1
