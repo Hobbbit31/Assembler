@@ -15,6 +15,9 @@ typedef struct {
     int sp;                 /* next free slot index */
 
     int memory[MEM_SIZE];   /* LOAD / STORE memory */
+
+    int call_stack[STACK_MAX]; /* return address stack */
+    int csp;                   /* next free slot for call stack */
 } Program;
 
 /* VM interface */
