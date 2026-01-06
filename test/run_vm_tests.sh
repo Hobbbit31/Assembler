@@ -206,7 +206,41 @@ if "$VM_BIN" "$tmp_dir/not_byc.bin" >/dev/null 2>"$tmp_dir/not_byc.err"; then
 elif ! grep -q "expected .byc file" "$tmp_dir/not_byc.err"; then
     fail_case "non-byc error message"
 else
-    pass "non-byc rejected"
+        pass "non-byc rejected"
+fi
+
+# Test 16: loop with JNZ runs without errors.
+loop_bin="$tmp_dir/loop.byc"
+if ! "$ASM_BIN" "$ROOT_DIR/test/loop.asm" "$loop_bin" >/dev/null 2>&1; then
+    fail_case "assemble loop program"
+else
+    if ! "$VM_BIN" "$loop_bin" >/dev/null 2>"$tmp_dir/loop.err"; then
+        fail_case "loop should run"
+    else
+        pass "loop program"
+    fi
+fi
+
+# Test 17: nested CALL/RET runs without errors.
+nested_bin="$tmp_dir/nested_call.byc"
+if ! "$ASM_BIN" "$ROOT_DIR/test/nested_call.asm" "$nested_bin" >/dev/null 2>&1; then
+    fail_case "assemble nested_call program"
+else
+    if ! "$VM_BIN" "$nested_bin" >/dev/null 2>"$tmp_dir/nested_call.err"; then
+        fail_case "nested_call should run"
+    else
+        pass "nested_call program"
+    fi
+fi
+
+# Test 18: truncated operand is rejected.
+printf '\x01' > "$tmp_dir/trunc.byc"
+if "$VM_BIN" "$tmp_dir/trunc.byc" >/dev/null 2>"$tmp_dir/trunc.err"; then
+    fail_case "truncated should fail"
+elif ! grep -q "truncated instruction" "$tmp_dir/trunc.err"; then
+    fail_case "truncated error message"
+else
+    pass "truncated rejected"
 fi
 
 if [[ $fail -ne 0 ]]; then
