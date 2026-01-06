@@ -3,6 +3,8 @@
 
 #define STACK_MAX 1024  /* fixed stack capacity */
 #define MEM_SIZE  256   /* global memory slots */
+#define VM_EXIT_OK  0   /* normal termination */
+#define VM_EXIT_ERR 1   /* runtime / usage error */
 
 /* Program = runtime state of the VM */
 typedef struct {

@@ -26,7 +26,7 @@ fail_case() {
 }
 
 # Test 1: simple program assembles and dumps expected bytes.
-simple_bin="$tmp_dir/simple.bin"
+simple_bin="$tmp_dir/simple.byc"
 if ! "$ASM_BIN" "$ROOT_DIR/test/test.asm" "$simple_bin" >"$tmp_dir/asm_simple.out" 2>&1; then
     fail_case "assemble simple program"
 else
@@ -40,7 +40,7 @@ else
 fi
 
 # Test 2: missing HALT should be rejected by VM validation.
-nohalt_bin="$tmp_dir/nohalt.bin"
+nohalt_bin="$tmp_dir/nohalt.byc"
 if ! "$ASM_BIN" "$ROOT_DIR/test/nohalt.asm" "$nohalt_bin" >/dev/null 2>&1; then
     fail_case "assemble nohalt program"
 else
@@ -54,8 +54,8 @@ else
 fi
 
 # Test 3: invalid opcode should be rejected.
-printf '\x99' > "$tmp_dir/invalid.bin"
-if "$VM_BIN" "$tmp_dir/invalid.bin" >/dev/null 2>"$tmp_dir/invalid.err"; then
+printf '\x99' > "$tmp_dir/invalid.byc"
+if "$VM_BIN" "$tmp_dir/invalid.byc" >/dev/null 2>"$tmp_dir/invalid.err"; then
     fail_case "invalid opcode should fail"
 elif ! grep -q "invalid opcode" "$tmp_dir/invalid.err"; then
     fail_case "invalid opcode error message"
@@ -64,7 +64,7 @@ else
 fi
 
 # Test 4: stack program runs without errors.
-stack_ok_bin="$tmp_dir/stack_ok.bin"
+stack_ok_bin="$tmp_dir/stack_ok.byc"
 if ! "$ASM_BIN" "$ROOT_DIR/test/stack_ok.asm" "$stack_ok_bin" >/dev/null 2>&1; then
     fail_case "assemble stack_ok program"
 else
@@ -76,7 +76,7 @@ else
 fi
 
 # Test 5: stack underflow is trapped.
-stack_underflow_bin="$tmp_dir/stack_underflow.bin"
+stack_underflow_bin="$tmp_dir/stack_underflow.byc"
 if ! "$ASM_BIN" "$ROOT_DIR/test/stack_underflow.asm" "$stack_underflow_bin" >/dev/null 2>&1; then
     fail_case "assemble stack_underflow program"
 else
@@ -90,7 +90,7 @@ else
 fi
 
 # Test 6: arithmetic program runs without errors.
-arith_bin="$tmp_dir/arith.bin"
+arith_bin="$tmp_dir/arith.byc"
 if ! "$ASM_BIN" "$ROOT_DIR/test/arith.asm" "$arith_bin" >/dev/null 2>&1; then
     fail_case "assemble arith program"
 else
@@ -102,7 +102,7 @@ else
 fi
 
 # Test 7: division by zero is trapped.
-div_zero_bin="$tmp_dir/div_zero.bin"
+div_zero_bin="$tmp_dir/div_zero.byc"
 if ! "$ASM_BIN" "$ROOT_DIR/test/div_zero.asm" "$div_zero_bin" >/dev/null 2>&1; then
     fail_case "assemble div_zero program"
 else
@@ -116,7 +116,7 @@ else
 fi
 
 # Test 8: JMP skips over bytes correctly.
-jmp_bin="$tmp_dir/jmp.bin"
+jmp_bin="$tmp_dir/jmp.byc"
 if ! "$ASM_BIN" "$ROOT_DIR/test/jmp.asm" "$jmp_bin" >/dev/null 2>&1; then
     fail_case "assemble jmp program"
 else
@@ -128,7 +128,7 @@ else
 fi
 
 # Test 9: JZ takes jump on zero.
-jz_bin="$tmp_dir/jz.bin"
+jz_bin="$tmp_dir/jz.byc"
 if ! "$ASM_BIN" "$ROOT_DIR/test/jz.asm" "$jz_bin" >/dev/null 2>&1; then
     fail_case "assemble jz program"
 else
@@ -140,7 +140,7 @@ else
 fi
 
 # Test 10: JNZ takes jump on non-zero.
-jnz_bin="$tmp_dir/jnz.bin"
+jnz_bin="$tmp_dir/jnz.byc"
 if ! "$ASM_BIN" "$ROOT_DIR/test/jnz.asm" "$jnz_bin" >/dev/null 2>&1; then
     fail_case "assemble jnz program"
 else
@@ -152,7 +152,7 @@ else
 fi
 
 # Test 11: STORE/LOAD works with valid index.
-mem_ok_bin="$tmp_dir/mem_ok.bin"
+mem_ok_bin="$tmp_dir/mem_ok.byc"
 if ! "$ASM_BIN" "$ROOT_DIR/test/mem_ok.asm" "$mem_ok_bin" >/dev/null 2>&1; then
     fail_case "assemble mem_ok program"
 else
@@ -164,7 +164,7 @@ else
 fi
 
 # Test 12: invalid memory index is trapped.
-mem_bad_bin="$tmp_dir/mem_bad.bin"
+mem_bad_bin="$tmp_dir/mem_bad.byc"
 if ! "$ASM_BIN" "$ROOT_DIR/test/mem_bad.asm" "$mem_bad_bin" >/dev/null 2>&1; then
     fail_case "assemble mem_bad program"
 else
@@ -178,7 +178,7 @@ else
 fi
 
 # Test 13: CALL/RET runs without errors.
-call_bin="$tmp_dir/call.bin"
+call_bin="$tmp_dir/call.byc"
 if ! "$ASM_BIN" "$ROOT_DIR/test/call.asm" "$call_bin" >/dev/null 2>&1; then
     fail_case "assemble call program"
 else
@@ -190,13 +190,23 @@ else
 fi
 
 # Test 14: invalid jump address is trapped.
-printf '\x20\xff\xff\xff\x7f\xff' > "$tmp_dir/invalid_jump.bin"
-if "$VM_BIN" "$tmp_dir/invalid_jump.bin" >/dev/null 2>"$tmp_dir/invalid_jump.err"; then
+printf '\x20\xff\xff\xff\x7f\xff' > "$tmp_dir/invalid_jump.byc"
+if "$VM_BIN" "$tmp_dir/invalid_jump.byc" >/dev/null 2>"$tmp_dir/invalid_jump.err"; then
     fail_case "invalid jump should fail"
 elif ! grep -q "invalid jump address" "$tmp_dir/invalid_jump.err"; then
     fail_case "invalid jump error message"
 else
-    pass "invalid jump trapped"
+        pass "invalid jump trapped"
+fi
+
+# Test 15: non-.byc file is rejected.
+printf '\xff' > "$tmp_dir/not_byc.bin"
+if "$VM_BIN" "$tmp_dir/not_byc.bin" >/dev/null 2>"$tmp_dir/not_byc.err"; then
+    fail_case "non-byc should fail"
+elif ! grep -q "expected .byc file" "$tmp_dir/not_byc.err"; then
+    fail_case "non-byc error message"
+else
+    pass "non-byc rejected"
 fi
 
 if [[ $fail -ne 0 ]]; then
