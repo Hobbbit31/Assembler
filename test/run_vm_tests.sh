@@ -189,6 +189,16 @@ else
     fi
 fi
 
+# Test 14: invalid jump address is trapped.
+printf '\x20\xff\xff\xff\x7f\xff' > "$tmp_dir/invalid_jump.bin"
+if "$VM_BIN" "$tmp_dir/invalid_jump.bin" >/dev/null 2>"$tmp_dir/invalid_jump.err"; then
+    fail_case "invalid jump should fail"
+elif ! grep -q "invalid jump address" "$tmp_dir/invalid_jump.err"; then
+    fail_case "invalid jump error message"
+else
+    pass "invalid jump trapped"
+fi
+
 if [[ $fail -ne 0 ]]; then
     echo "VM tests failed."
     exit 1
