@@ -34,6 +34,9 @@ void vm_run(Program *p) {
         int pc = p->pc;
         unsigned char op = p->code[pc];
 
+        /* count each executed instruction */
+        p->instr_count++;
+
         /* fixed-width instruction step */
         if (needs_operand(op))
             p->pc = pc + 5;
@@ -155,7 +158,9 @@ void vm_run(Program *p) {
                 p->pc = vm_pop_ret(p);
                 break;
             }
-            case 0xFF: /* HALT */ return;
+            case 0xFF: /* HALT */
+                printf("Instruction count: %d\n", p->instr_count);
+                return;
             default:
                 fprintf(stderr, "error: invalid opcode 0x%x at pc=%d\n", op, pc);
                 exit(1);

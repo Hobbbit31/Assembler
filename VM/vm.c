@@ -8,6 +8,7 @@ void vm_init(Program *p, unsigned char *code, int size) {
     p->pc = 0;
     p->sp = 0;
     p->csp = 0;
+    p->instr_count = 0;
 
     /* clear memory so LOAD reads predictable values */
     for (int i = 0; i < MEM_SIZE; i++)
