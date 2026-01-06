@@ -91,21 +91,35 @@ void vm_run(Program *p) {
             }
             case 0x20: { /* JMP */
                 int addr = read_int32(p->code, pc + 1);
+                if (addr < 0 || addr >= p->code_size) {
+                    fprintf(stderr, "error: invalid jump address %d\n", addr);
+                    exit(1);
+                }
                 p->pc = addr;
                 break;
             }
             case 0x21: { /* JZ */
                 int addr = read_int32(p->code, pc + 1);
                 int value = vm_pop(p);
-                if (value == 0)
+                if (value == 0) {
+                    if (addr < 0 || addr >= p->code_size) {
+                        fprintf(stderr, "error: invalid jump address %d\n", addr);
+                        exit(1);
+                    }
                     p->pc = addr;
+                }
                 break;
             }
             case 0x22: { /* JNZ */
                 int addr = read_int32(p->code, pc + 1);
                 int value = vm_pop(p);
-                if (value != 0)
+                if (value != 0) {
+                    if (addr < 0 || addr >= p->code_size) {
+                        fprintf(stderr, "error: invalid jump address %d\n", addr);
+                        exit(1);
+                    }
                     p->pc = addr;
+                }
                 break;
             }
             case 0x30: { /* STORE */
@@ -129,6 +143,10 @@ void vm_run(Program *p) {
             }
             case 0x40: { /* CALL */
                 int addr = read_int32(p->code, pc + 1);
+                if (addr < 0 || addr >= p->code_size) {
+                    fprintf(stderr, "error: invalid jump address %d\n", addr);
+                    exit(1);
+                }
                 vm_push_ret(p, p->pc);
                 p->pc = addr;
                 break;
