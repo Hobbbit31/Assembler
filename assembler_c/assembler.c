@@ -1,5 +1,5 @@
 #include "assembler.h"
-
+#include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -81,7 +81,7 @@ void write_int32(FILE *out, int val) {
 
 
 
-//   Detect labels and calculate byte offsets
+// Detect labels and calculate byte offsets
 
 void pass1_build_label_table(FILE *in) {
     char line[MAX_LINE];
@@ -183,8 +183,7 @@ void pass2_emit_bytecode(FILE *in, FILE *out) {
             write_int32(out, atoi(operand));
         }
 
-        /* RET, ADD, SUB, MUL, DIV, CMP, POP, DUP, HALT */
-        /* no operand */
+        
     }
 }
 
@@ -198,6 +197,8 @@ int assemble(char *infile, char *outfile) {
         return 1;
     }
 
+    clock_t start = clock();
+
     pass1_build_label_table(in);
     rewind(in);
     FILE *out = fopen(outfile, "wb");
@@ -207,6 +208,14 @@ int assemble(char *infile, char *outfile) {
         return 1;
     }
     pass2_emit_bytecode(in, out);
+
+    clock_t end = clock();
+    double time_taken = ((double)(end - start))* 1000.0 / CLOCKS_PER_SEC;
+    printf("Assemble time: %f milliseconds\n", time_taken);
+    
+    int size = ftell(out);
+    printf("Output bytecode size: %d bytes\n", size);
+    
 
     fclose(in);
     fclose(out);

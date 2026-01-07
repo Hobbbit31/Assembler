@@ -17,7 +17,7 @@ $(VM_BIN): $(VM_SRC)
 	$(CC) $(CFLAGS) -I./VM $(VM_SRC) -o $(VM_BIN)
 
 clean:
-	rm -f $(ASM_BIN) $(VM_BIN)
+	rm -f $(ASM_BIN) $(VM_BIN) test1.byc
 
 test: all
 	$(TEST_SCRIPT)

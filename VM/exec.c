@@ -28,16 +28,16 @@ static int read_int32(const unsigned char *code, int offset) {
 }
 
 void vm_run(Program *p) {
-    /* V2: fetch + decode skeleton (execution comes later) */
+   
     while (p->pc < p->code_size) {
 
         int pc = p->pc;
         unsigned char op = p->code[pc];
 
-        /* count each executed instruction */
+        //count instruction
         p->instr_count++;
 
-        /* fixed-width instruction step */
+        
         if (needs_operand(op))
             p->pc = pc + 5;
         else

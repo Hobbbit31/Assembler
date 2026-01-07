@@ -1,9 +1,25 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include "VM/vm.h"
 #include "VM/loader.h"
 #include "VM/exec.h"
+
+
+void print_stack(Program *p) {
+    printf("\n=== VM HALTED ===\n");
+
+    if (p->sp == 0) {
+        printf("Stack is empty\n");
+        return;
+    }
+
+    printf("Stack (top -> bottom):\n");
+    for (int i = p->sp - 1; i >= 0; i--) {
+        printf("[%d] %d\n", i, p->stack[i]);
+    }
+}
 
 
 int main(int argc, char **argv) {
@@ -36,8 +52,20 @@ int main(int argc, char **argv) {
     vm_validate(&prog);
     vm_dump_bytecode(&prog);
 
-    
+
+    // clocking the execution
+    clock_t start = clock();
+
+
     vm_run(&prog);
+
+
+    clock_t end = clock();
+    double time_taken = ((double)(end - start))* 1000.0 / CLOCKS_PER_SEC;
+    printf("Execution time: %f seconds\n", time_taken);
+    
+
+    print_stack(&prog);
 
     vm_free(&prog);
     return VM_EXIT_OK;
